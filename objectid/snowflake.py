@@ -38,7 +38,7 @@ class SnowFlakeID():
         return host
 
     @classmethod
-    def get_all_ip(self, num=False):
+    def get_all_ip(cls, num=False):
         all_ip = []
         all_if = psutil.net_if_addrs()
         for k, v in all_if.items():
