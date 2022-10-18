@@ -5,6 +5,7 @@ import os
 import re
 import hashlib
 import time
+import threading
 
 class ObjectID():
     """
@@ -17,7 +18,8 @@ class ObjectID():
             obj["timestamp"] = 0
             obj["host"] = self.getHostID()
             obj["counter"] = 0
-            obj["pid"] = "{:0>4x}".format(os.getpid())[:4]
+            t=threading.currentThread()
+            obj["pid"] = "{:0>4x}".format(os.getpid()+t.ident)[:4]
             g['__objectid_global'] = obj
         self._gobj = g['__objectid_global']
         if id:
@@ -42,7 +44,9 @@ class ObjectID():
         """
         old_time = self._gobj["timestamp"]        
         self.timestamp = int(time.time())
-        
+        if self.timestamp < old_time:
+            raise SystemError('Time callback exists. Please check the host clock.')
+            
         if old_time == self.timestamp:
             self._gobj["counter"] += 1
         else:
