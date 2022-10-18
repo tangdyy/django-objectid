@@ -5,6 +5,7 @@ import os
 import re
 import hashlib
 import time
+import random
 import threading
 
 class ObjectID():
@@ -19,7 +20,8 @@ class ObjectID():
             obj["host"] = self.getHostID()
             obj["counter"] = 0
             t=threading.currentThread()
-            obj["pid"] = "{:0>4x}".format(os.getpid()+t.ident)[:4]
+            ptid = os.getpid()<<4 + (t.ident or random.randint(1, 1000))
+            obj["pid"] = "{:0>4x}".format(ptid)[:4]
             g['__objectid_global'] = obj
         self._gobj = g['__objectid_global']
         if id:
@@ -70,7 +72,7 @@ class ObjectID():
             finally:
                 h.close()
         m = hashlib.sha256()
-        m.update(host.encode('utf-8'))
+        m.update('{}'.format(host).encode('utf-8'))
         d = m.hexdigest()
         return d[:6]
      
