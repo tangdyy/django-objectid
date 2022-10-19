@@ -1,8 +1,20 @@
 '''雪花算法生成ID
 '''
 import os
-import socket
 import psutil
+
+
+# 时间单位
+TIME_UNIT = 1000
+# 起始时间，毫秒
+BEGIN_TIME = 1637153466000
+# 服务器ID位数
+MACHINEID_BITS = 10
+# 进程ID位数
+PID_BITS = 6
+# 序号位数
+SEQUENCE_BITS = 12
+
 
 class SnowFlakeID():
     '''SnowFlake ID
@@ -38,7 +50,7 @@ class SnowFlakeID():
         return host
 
     @classmethod
-    def get_all_ip(self, num=False):
+    def get_all_ip(cls, num=False):
         all_ip = []
         all_if = psutil.net_if_addrs()
         for k, v in all_if.items():
