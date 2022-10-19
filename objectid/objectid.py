@@ -20,7 +20,7 @@ class ObjectID():
             obj["host"] = self.getHostID()
             obj["counter"] = 0
             t=threading.currentThread()
-            ptid = os.getpid()<<4 + (t.ident or random.randint(1, 1000))
+            ptid = os.getpid()*16 + (t.ident or random.randint(1, 1000))
             obj["pid"] = "{:0>4x}".format(ptid)[:4]
             g['__objectid_global'] = obj
         self._gobj = g['__objectid_global']
