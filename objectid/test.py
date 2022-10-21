@@ -2,15 +2,15 @@ import os
 import time
 import unittest
 import random
+import collections
 from multiprocessing import Process, Lock
 from threading import Thread, current_thread
 import objectid
 
 
 def gen_objectid(l):
-    print('gen_objectid thread start', current_thread().ident)
     ids = []
-    for i in range(1000):
+    for i in range(10000):
         ids.append(objectid.create_objectid())
 
     l.acquire()
@@ -21,11 +21,10 @@ def gen_objectid(l):
         f.close()
     finally:
         l.release()
-    print('gen_objectid thread exit', current_thread().ident)
+
 
 
 def gen_objectid_proc(l):
-    print('gen_objectid_proc', os.getpid())
     ths = []
     count = 10
     for i in range(count):
@@ -37,12 +36,10 @@ def gen_objectid_proc(l):
     while True:        
         for i in range(count):            
             if ths[i] and not ths[i].is_alive():
-                print('thread state', ths[i].ident, ths[i].is_alive())
                 ths[i] = None
                 alives -= 1
         if alives <= 0:
             break
-        print('thead alives', alives)
         time.sleep(0.5)
 
 
@@ -58,14 +55,11 @@ def start_mutil_process():
     alives = count
     while True:        
         for i in range(count):
-            if procs[i]:
-                print('process state', procs[i].pid, procs[i].is_alive())            
             if procs[i] and not procs[i].is_alive():
                 procs[i] = None
                 alives -= 1
         if alives <= 0:
             break
-        print('process alives', alives)
         time.sleep(0.5)        
 
 
@@ -89,14 +83,11 @@ class TestCreateObjectID(unittest.TestCase):
         f.close()
         idss = set(ids)
         os.remove('objectid_test.tmp')
-        print('id count', len(ids))
-        self.assertEqual(100000, len(ids))
-        
-        
+        print('id count: ', len(ids), len(idss))
+        c = dict(collections.Counter(ids))
+        s = [k for k, v in c.items() if v > 1]
+        self.assertEqual(1000000, len(idss))
 
-        
-
-    
     
 if __name__ == '__main__':
     unittest.main()

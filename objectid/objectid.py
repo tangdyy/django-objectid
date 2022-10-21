@@ -8,26 +8,31 @@ import time
 import random
 import threading
 
+l = threading.RLock()
+
 class ObjectID():
     """
     Generate object id. 
     """
     def __init__(self,id=None):
-        g = globals()
-        if not '__objectid_global' in g:
-            obj = {}
-            obj["timestamp"] = 0
-            obj["host"] = self.getHostID()
-            obj["counter"] = 0
-            t=threading.currentThread()
-            ptid = os.getpid()*16 + (t.ident or random.randint(1, 1000))
-            obj["pid"] = "{:0>4x}".format(ptid)[:4]
-            g['__objectid_global'] = obj
-        self._gobj = g['__objectid_global']
-        if id:
-            self.parser(id)
-        else:
-            self.new()
+        l.acquire()
+        try:
+            g = globals()
+            if not '__objectid_global' in g:
+                obj = {}
+                obj["timestamp"] = 0
+                obj["host"] = self.getHostID()
+                obj["counter"] = 0
+                ptid = os.getpid() + (threading.get_ident() or random.randint(1, 10000))
+                obj["pid"] = "{:0>4x}".format(ptid)[:4]
+                g['__objectid_global'] = obj
+            self._gobj = g['__objectid_global']
+            if id:
+                self.parser(id)
+            else:
+                self.new()
+        finally:
+            l.release()
         
     def parser(self,id):
         """
@@ -35,17 +40,17 @@ class ObjectID():
         """
         if not isinstance(id,str) or not re.match('^[0-9a-fA-F]{24}$',id):
             raise ValueError('objectid is 12 bytes hex  str.')
-        self.timestamp = int(id[:8],16)
+        self.timestamp = int(id[:11],16)
         self.host = id[8:14]
         self.pid = id[14:18]
-        self.count = int(id[18:24],16)
+        self.count = int(id[21:24],16)
         
     def new(self):
         """
         Generate new id.
         """
         old_time = self._gobj["timestamp"]        
-        self.timestamp = int(time.time())
+        self.timestamp = int(time.time()*1000)
         if self.timestamp < old_time:
             raise SystemError('Time callback exists. Please check the host clock.')
             
@@ -53,6 +58,8 @@ class ObjectID():
             self._gobj["counter"] += 1
         else:
             self._gobj["counter"] = 0
+        if self._gobj["counter"] > 0xfff:
+            raise ValueError('Counter greater than 0xfff.')            
         self._gobj["timestamp"] = self.timestamp    
         self.count = self._gobj["counter"]
         self.host = self._gobj["host"]
@@ -77,7 +84,7 @@ class ObjectID():
         return d[:6]
      
     def __str__(self):
-        return "{0:08x}{1}{2}{3:06x}".format(self.timestamp,self.host,self.pid,self.count)
+        return "{0:011x}{1}{2}{3:03x}".format(self.timestamp,self.host,self.pid,self.count)
 
 
 def create_objectid():
