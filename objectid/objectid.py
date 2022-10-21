@@ -5,8 +5,8 @@ import os
 import re
 import hashlib
 import time
-import random
 import threading
+import psutil
 
 l = threading.RLock()
 
@@ -21,9 +21,9 @@ class ObjectID():
             if not '__objectid_global' in g:
                 obj = {}
                 obj["timestamp"] = 0
-                obj["host"] = self.getHostID()
+                obj["host"] = self.getIP() or self.getHostID()
                 obj["counter"] = 0
-                ptid = os.getpid() + (threading.get_ident() or random.randint(1, 10000))
+                ptid = os.getpid()
                 obj["pid"] = "{:0>4x}".format(ptid)[:4]
                 g['__objectid_global'] = obj
             self._gobj = g['__objectid_global']
@@ -65,7 +65,22 @@ class ObjectID():
         self.host = self._gobj["host"]
         self.pid = self._gobj["pid"]
         return self.__str__()
-        
+
+    def getIP(self):
+        ip = None
+        info = psutil.net_if_addrs()  
+        for k,v in info.items():
+            for item in v:
+                if item[0] == 2 and not item[1]=='127.0.0.1':
+                    if item[1][:2] == '10' or item[1][:7] == '192.168':
+                        ip = item[1]
+                        break
+            if ip:
+                break
+        if ip is None:
+            return None
+        ipl = ip.split('.')
+        return '%02x%02x%02x'%(int(ipl[1]), int(ipl[2]), int(ipl[3]))
             
     def getHostID(self):
         systype = os.name

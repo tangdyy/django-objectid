@@ -1,10 +1,8 @@
 import os
 import time
 import unittest
-import random
-import collections
 from multiprocessing import Process, Lock
-from threading import Thread, current_thread
+from threading import Thread
 import objectid
 
 
@@ -84,8 +82,6 @@ class TestCreateObjectID(unittest.TestCase):
         idss = set(ids)
         os.remove('objectid_test.tmp')
         print('id count: ', len(ids), len(idss))
-        c = dict(collections.Counter(ids))
-        s = [k for k, v in c.items() if v > 1]
         self.assertEqual(1000000, len(idss))
 
     
