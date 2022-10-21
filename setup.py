@@ -14,8 +14,7 @@ setup(
     author = 'Tang dayong', 
     author_email = "tangdyy@126.com",
     install_requires = [
-        'django>=2.2.0',
-        'psutil>=5.9.2'
+        'django>=2.2.0'
     ],
     packages = find_packages(),
     classifiers = [
