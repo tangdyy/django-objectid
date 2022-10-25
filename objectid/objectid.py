@@ -41,7 +41,9 @@ class ObjectID():
         """
         if not isinstance(id,str) or not re.match('^[0-9a-fA-F]{24}$',id):
             raise ValueError('objectid is 12 bytes hex  str.')
-        self.timestamp = int(id[:11],16)
+        sec = int(id[:8],16)
+        msec = int(id[9:11],16)
+        self.timestamp = sec*1000 + msec
         self.host = id[8:14]
         self.pid = id[14:18]
         self.count = int(id[21:24],16)
@@ -102,7 +104,9 @@ class ObjectID():
         return d[:6]
      
     def __str__(self):
-        return "{0:011x}{1}{2}{3:03x}".format(self.timestamp,self.host,self.pid,self.count)
+        sec = int(self.timestamp/1000)
+        msec = int(self.timestamp - sec*1000)
+        return "{0:08x}{1:03x}{2}{3}{4:03x}".format(sec,msec,self.host,self.pid,self.count)
 
 
 def create_objectid():
