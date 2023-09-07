@@ -14,6 +14,13 @@ pip install django-objectid
 ```shell
 python setup.py install
 ```
+### 发布包
+```shell
+# 打包
+python setup.py bdist_wheel
+# 上传
+twine upload -u xxx -p ***  ./dist/*
+```
 
 ### 使用
 Django-objectid包括两个类，`ObjectID`，`ObjectidModel`。
