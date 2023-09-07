@@ -55,14 +55,19 @@ class ObjectID():
         old_time = self._gobj["timestamp"]        
         self.timestamp = int(time.time()*1000)
         if self.timestamp < old_time:
-            raise SystemError('Time callback exists. Please check the host clock.')
+            self.timestamp = old_time
             
-        if old_time == self.timestamp:
+        if old_time == self.timestamp and self._gobj["counter"] < 0xfff:
             self._gobj["counter"] += 1
+        elif old_time == self.timestamp and self._gobj["counter"] >= 0xfff:
+            self.timestamp += 1
+            self._gobj["counter"] = 0
         else:
             self._gobj["counter"] = 0
+            
         if self._gobj["counter"] > 0xfff:
-            raise ValueError('Counter greater than 0xfff.')            
+            raise ValueError('Counter greater than 0xfff.')      
+              
         self._gobj["timestamp"] = self.timestamp    
         self.count = self._gobj["counter"]
         self.host = self._gobj["host"]
