@@ -47,4 +47,4 @@ id = ObjectID('5fb1ee9af1d79721f0000015')
 #### class objectid.ObjectidModel()
 `ObjectidModel`是一个抽象类，不能单独使用，作为定义django模型类的基类。实例对象有如下属性和方法：
 + get_id_datetime()，返回id中的时间戳。
-
++ 多数据中心布署时，settings中增加配置 `DCID`，数据中心ID，默认为0。
