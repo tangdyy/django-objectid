@@ -19,7 +19,7 @@ python setup.py install
 # 打包
 python setup.py bdist_wheel
 # 上传
-twine upload -u xxx -p ***  ./dist/*
+twine upload -u __token__ ./dist/*
 ```
 
 ### 使用

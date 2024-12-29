@@ -19,10 +19,6 @@ class ObjectidModel(models.Model):
         primary_key=True,
         default=_create_objectid
     )
-    cdcid = models.IntegerField(
-        '数据变动数据中心ID', 
-        default=DCID
-    )
 
     def get_id_datetime(self):
         oid = ObjectID(self.id)
